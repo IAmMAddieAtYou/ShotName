@@ -2,14 +2,18 @@ import obspython as obs
 from datetime import datetime
 shot_number = 1
 
-def set_shot_number(props, prop):
+
+def set_shot_number(props, prop, settings):
     global shot_number
-    shot_number = obs.obs_properties_get(props, "shot_number")
+    
+    shot_number = obs.obs_data_get_int(settings,"shot_number")
+    print(shot_number)
     update_filename_format()
 
 def update_filename_format():
     global shot_number
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    print(shot_number)
     shot_number = int(shot_number)
     # Format the string with shot number and current date and time
     if shot_number < 10:
@@ -40,10 +44,11 @@ def script_description():
     return "Sets the filename formatting based on the current scene's shot number"
 
 def script_properties():
+    
+    settings = obs.obs_data_create()
     props = obs.obs_properties_create()
-    obs.obs_properties_add_int(props, "shot_number", "Shot Number", 1, 999, 1)
-    obs.obs_properties_add_button(props, "button", "Set Shot Number", set_shot_number)
+    number = obs.obs_properties_add_int(props, "shot_number", "Shot Number", 1, 999, 1)
+    
+    obs.obs_property_set_modified_callback(number, set_shot_number)
     return props
 
-def script_update(settings):
-    update_filename_format()
